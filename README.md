@@ -1,0 +1,2 @@
+# patternRecognition
+classwork for patternRecognition
