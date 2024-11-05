@@ -37,12 +37,11 @@ background_params = {
 
 
 # Function to calculate probability for each color channel in a block given the mean and std deviation
-# Function to calculate probability for each color channel in a block given the mean and std deviation
 def calculate_probability(block, mean, std):
     # Convert mean and std to numpy arrays to avoid issues with sequence multiplication
     mean = np.array(mean)
     std = np.array(std)
-    
+
     # Calculate the Gaussian probability for each channel in the block
     prob_rgb = np.exp(-0.5 * ((block - mean) / std) ** 2) / (std * np.sqrt(2 * np.pi))
     return np.prod(prob_rgb)  # Use np.prod to multiply across RGB channels
@@ -70,13 +69,13 @@ def bayesian_segment(image, fg_params, bg_params, block_size=5):
             p_fg_rgb = calculate_probability(mean_rgb, fg_params['mean_rgb'], fg_params['std_rgb'])
             p_fg_hsv = calculate_probability(mean_hsv, fg_params['mean_hsv'], fg_params['std_hsv'])
             p_fg_lab = calculate_probability(mean_lab, fg_params['mean_lab'], fg_params['std_lab'])
-            p_fg = p_fg_rgb * p_fg_hsv * p_fg_lab
+            p_fg = p_fg_rgb * p_fg_lab
 
             # Calculate probability for background
             p_bg_rgb = calculate_probability(mean_rgb, bg_params['mean_rgb'], bg_params['std_rgb'])
             p_bg_hsv = calculate_probability(mean_hsv, bg_params['mean_hsv'], bg_params['std_hsv'])
             p_bg_lab = calculate_probability(mean_lab, bg_params['mean_lab'], bg_params['std_lab'])
-            p_bg = p_bg_rgb * p_bg_hsv * p_bg_lab
+            p_bg = p_bg_rgb * p_bg_lab
 
             # Decide class based on maximum posterior probability
             label = 1 if p_fg > p_bg else 0
@@ -88,10 +87,11 @@ def bayesian_segment(image, fg_params, bg_params, block_size=5):
 # Segment the image using the Bayesian approach
 segmented_image = bayesian_segment(image_rgb, foreground_params, background_params)
 
-# Display segmented image
-plt.imshow(segmented_image, cmap='gray')
-plt.title("Bayesian Segmented Image")
-plt.show()
+
+# # Display segmented image
+# plt.imshow(segmented_image, cmap='gray')
+# plt.title("Bayesian Segmented Image")
+# plt.show()
 
 
 # Post-process the segmented image
@@ -115,7 +115,6 @@ def post_process(segmented_image, kernel_size=3, min_area=100):
 
 # Apply post-processing
 processed_segmented_image = post_process(segmented_image)
-
 
 # Flatten the ground truth and predicted images for evaluation
 ground_truth = mask.flatten() // 255  # Assuming mask is in 0 and 255, convert to 0 and 1
