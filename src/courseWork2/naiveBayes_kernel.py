@@ -28,8 +28,8 @@ gaussian = gaussian_kernel(5, sigma=1)
 
 kernels = [
     gaussian,  # 高斯滤波器
-    # np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], dtype=np.float32),  # Sobel X
-    # np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]], dtype=np.float32)   # Sobel Y
+    np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], dtype=np.float32),  # Sobel X
+    np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]], dtype=np.float32)   # Sobel Y
 ]
 
 # image size
