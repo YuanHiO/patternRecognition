@@ -136,7 +136,7 @@ plt.imshow(segmented_image, cmap='gray')
 plt.title("Segmented Image")
 plt.show()
 
-# after pre process
+# after pre-process
 def post_process(segmented_image, kernel_size=3, min_area=100):
     # Open operation removes small noise points
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kernel_size, kernel_size))
