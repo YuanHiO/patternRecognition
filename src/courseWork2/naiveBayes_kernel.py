@@ -65,7 +65,7 @@ for i in range(0, height - block_size + 1, 1):
         block_mask = mask[i:i+block_size, j:j+block_size].flatten()
         # use center point
         label = 1 if mask[i+block_size//2,j+block_size//2] > 0.5 else 0
-        # 如果块内超过一半的像素被标记，则该块标记为1，否则为0
+        # countPointvalues to set label
         # label = 1 if np.sum(block_mask) > (block_size * block_size / 2) else 0
 
         features.append(feature_vector)

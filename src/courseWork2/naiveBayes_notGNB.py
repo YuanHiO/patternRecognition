@@ -92,11 +92,16 @@ segmented_image = bayesian_segment(image_rgb, foreground_params, background_para
 
 
 # Post-process the segmented image
-def post_process(segmented_image, kernel_size=3, min_area=100):
+def post_process(segmented_image, open_kernel_size=3, close_kernel_size=5, min_area=200):
     # Morphological operations to clean up segmentation
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kernel_size, kernel_size))
-    opened = cv2.morphologyEx(segmented_image, cv2.MORPH_OPEN, kernel)
-    closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel)
+
+    open_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (open_kernel_size, open_kernel_size))
+    opened = cv2.morphologyEx(segmented_image, cv2.MORPH_OPEN, open_kernel)
+    close_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (close_kernel_size, close_kernel_size))
+    closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, close_kernel)
+    # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kernel_size, kernel_size))
+    # opened = cv2.morphologyEx(segmented_image, cv2.MORPH_OPEN, kernel)
+    # closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel)
 
     # Connected component analysis
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(closed, connectivity=8)

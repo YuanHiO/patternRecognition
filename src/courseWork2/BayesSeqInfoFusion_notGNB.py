@@ -6,11 +6,15 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, confu
 foreground_params = {
     'mean_rgb': np.array([150, 150, 150]),
     'std_rgb': np.array([20, 20, 20]),
+    'mean_lab': np.array([145, 128, 128]),
+    'std_lab': np.array([10, 10, 10])
 }
 
 background_params = {
     'mean_rgb': np.array([60, 60, 60]),
     'std_rgb': np.array([10, 10, 10]),
+    'mean_lab': np.array([80, 128, 128]),
+    'std_lab': np.array([10, 10, 10])
 }
 
 # Probability calculation function for each pixel using log probabilities
@@ -44,6 +48,14 @@ def bayesian_segment_incremental(image, fg_params, bg_params, block_size=3):
                     log_posterior_fg += log_p_fg
                     log_posterior_bg += log_p_bg
 
+                    # Calculate log likelihoods for foreground and background
+                    log_p_fg = calculate_log_probability(pixel, fg_params['mean_lab'], fg_params['std_lab'])
+                    log_p_bg = calculate_log_probability(pixel, bg_params['mean_lab'], bg_params['std_lab'])
+
+                    # Update log posteriors based on pixel evidence
+                    log_posterior_fg += log_p_fg
+                    log_posterior_bg += log_p_bg
+
             # Final decision for the block based on accumulated evidence
             label = 1 if log_posterior_fg > log_posterior_bg else 0
 
@@ -67,11 +79,8 @@ plt.show()
 # Post-process the segmented image to reduce noise
 def post_process(segmented_image, open_kernel_size=3, close_kernel_size=5, min_area=200):
     # Morphological operations to clean up segmentation
-    # 打开操作，去除小块噪声
     open_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (open_kernel_size, open_kernel_size))
     opened = cv2.morphologyEx(segmented_image, cv2.MORPH_OPEN, open_kernel)
-
-    # 闭运算，填补小孔和细小空隙
     close_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (close_kernel_size, close_kernel_size))
     closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, close_kernel)
     # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kernel_size, kernel_size))
