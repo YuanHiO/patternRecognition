@@ -1,8 +1,5 @@
 import cv2
 import numpy as np
-from sklearn.naive_bayes import GaussianNB
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 import matplotlib.pyplot as plt
 

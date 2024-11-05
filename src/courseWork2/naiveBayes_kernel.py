@@ -46,11 +46,11 @@ for i in range(0, height - block_size + 1, 1):
         feature_vector = []
 
         # 应用卷积核到不同的颜色空间
-        for color_space in ['RGB', 'HSV', 'LAB']:
+        for color_space in ['RGB', 'LAB',]:
             if color_space == 'RGB':
                 block_color = block
-            elif color_space == 'HSV':
-                block_color = cv2.cvtColor(block, cv2.COLOR_RGB2HSV)
+            # elif color_space == 'HSV':
+            #     block_color = cv2.cvtColor(block, cv2.COLOR_RGB2HSV)
             elif color_space == 'LAB':
                 block_color = cv2.cvtColor(block, cv2.COLOR_RGB2LAB)
 
@@ -61,9 +61,9 @@ for i in range(0, height - block_size + 1, 1):
                     # 将卷积结果的平均值添加到特征向量中
                     feature_vector.append(np.mean(conv_result))
 
-        # 提取标签
+        # extract labels
         block_mask = mask[i:i+block_size, j:j+block_size].flatten()
-        # 直接选取中心点
+        # use center point
         label = 1 if mask[i+block_size//2,j+block_size//2] > 0.5 else 0
         # 如果块内超过一半的像素被标记，则该块标记为1，否则为0
         # label = 1 if np.sum(block_mask) > (block_size * block_size / 2) else 0
@@ -92,14 +92,31 @@ print("Average cross-validation score:", np.mean(cv_scores))
 y_pred = gnb.predict(X_test)
 
 print("Accuracy:", accuracy_score(y_test, y_pred))
+cm = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:\n", cm)
 
-print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+# 手动计算各项指标
+TP = cm[1, 1]
+FP = cm[0, 1]
+TN = cm[0, 0]
+FN = cm[1, 0]
+
+accuracy = (TP + TN) / (TP + FP + FN + TN)
+precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+recall = TP / (TP + FN) if (TP + FN) > 0 else 0
+specificity = TN / (TN + FP) if (TN + FP) > 0 else 0
+f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+
+print(f"Accuracy: {accuracy}")
+print(f"Precision: {precision}")
+print(f"Recall: {recall}")
+print(f"Specificity: {specificity}")
+print(f"F1 Score: {f1}")
 
 # use model to split the image
 def segment_image(image, model, scaler, block_size=5):
     height, width, _ = image.shape
     segmented_image = np.zeros((height, width), dtype=np.uint8)
-    
     for i in range(height):
         for j in range(width):
             # Ensure that the border is not exceeded
@@ -107,21 +124,16 @@ def segment_image(image, model, scaler, block_size=5):
             bottom = min(height, i + block_size // 2 + 1)
             left = max(0, j - block_size // 2)
             right = min(width, j + block_size // 2 + 1)
-            
+
             # extract data
             block = image[top:bottom, left:right]
-            # 获取块数据
             block = image_rgb[i:i+block_size, j:j+block_size]
-
-            # 初始化特征向量
             feature_vector = []
-
-            # 应用卷积核到不同的颜色空间
-            for color_space in ['RGB', 'HSV', 'LAB']:
+            for color_space in ['RGB', 'LAB',]:
                 if color_space == 'RGB':
                     block_color = block
-                elif color_space == 'HSV':
-                    block_color = cv2.cvtColor(block, cv2.COLOR_RGB2HSV)
+                # elif color_space == 'HSV':
+                #     block_color = cv2.cvtColor(block, cv2.COLOR_RGB2HSV)
                 elif color_space == 'LAB':
                     block_color = cv2.cvtColor(block, cv2.COLOR_RGB2LAB)
 
@@ -133,15 +145,11 @@ def segment_image(image, model, scaler, block_size=5):
                         feature_vector.append(np.mean(conv_result))
 
             feature_vector = scaler.transform([feature_vector])
-            
             # predict
             prediction = model.predict(feature_vector)
-            
             # update split-image
             segmented_image[i, j] = prediction[0] * 255
-    
     return segmented_image
-
 
 # load test image
 image_path = 'data/imgs/0618.png'
@@ -155,7 +163,7 @@ plt.imshow(segmented_image, cmap='gray')
 plt.title("Segmented Image")
 plt.show()
 
-# after pre process
+# after pre-process
 def post_process(segmented_image, kernel_size=3, min_area=100):
     # Open operation removes small noise points
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kernel_size, kernel_size))
