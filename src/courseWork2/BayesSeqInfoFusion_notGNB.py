@@ -52,6 +52,7 @@ def bayesian_segment_incremental(image, fg_params, bg_params, block_size=3):
 
     return segmented_image
 
+
 # Load and prepare the image
 image_rgb = cv2.cvtColor(cv2.imread('../../data/imgs/0618.png'), cv2.COLOR_BGR2RGB)
 

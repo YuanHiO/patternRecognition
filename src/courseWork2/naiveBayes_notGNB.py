@@ -109,7 +109,6 @@ def post_process(segmented_image, kernel_size=3, min_area=100):
 
     return processed_image
 
-
 # Apply post-processing
 processed_segmented_image = post_process(segmented_image)
 
