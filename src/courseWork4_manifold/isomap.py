@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.manifold import Isomap, LocallyLinearEmbedding
+from sklearn.manifold import Isomap
 from sklearn.cluster import KMeans
 from skimage.transform import resize
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 
 # Load the image path
 image_path = '../../data/imgs/0618.png'
@@ -71,6 +72,37 @@ kmeans_HSV = KMeans(n_clusters=n_clusters, random_state=42)
 labels_HSV = kmeans_HSV.fit_predict(image_reduced_isomap_HSV)
 # Reshape the labels to the image shape
 segmented_image_HSV = labels_HSV.reshape(image_resized_HSV.shape[0], image_resized_HSV.shape[1])
+
+# Calculate evaluation metrics for RGB
+silhouette_avg_RGB = silhouette_score(image_reduced_isomap_RGB, labels_RGB)
+calinski_harabasz_RGB = calinski_harabasz_score(image_reduced_isomap_RGB, labels_RGB)
+davies_bouldin_RGB = davies_bouldin_score(image_reduced_isomap_RGB, labels_RGB)
+
+# Calculate evaluation metrics for LAB
+silhouette_avg_LAB = silhouette_score(image_reduced_isomap_LAB, labels_LAB)
+calinski_harabasz_LAB = calinski_harabasz_score(image_reduced_isomap_LAB, labels_LAB)
+davies_bouldin_LAB = davies_bouldin_score(image_reduced_isomap_LAB, labels_LAB)
+
+# Calculate evaluation metrics for HSV
+silhouette_avg_HSV = silhouette_score(image_reduced_isomap_HSV, labels_HSV)
+calinski_harabasz_HSV = calinski_harabasz_score(image_reduced_isomap_HSV, labels_HSV)
+davies_bouldin_HSV = davies_bouldin_score(image_reduced_isomap_HSV, labels_HSV)
+
+# Print the evaluation metrics
+print(f"RGB Evaluation Metrics:")
+print(f"Silhouette Coefficient: {silhouette_avg_RGB}")
+print(f"Calinski-Harabasz Index: {calinski_harabasz_RGB}")
+print(f"Davies-Bouldin Index: {davies_bouldin_RGB}")
+
+print(f"\nLAB Evaluation Metrics:")
+print(f"Silhouette Coefficient: {silhouette_avg_LAB}")
+print(f"Calinski-Harabasz Index: {calinski_harabasz_LAB}")
+print(f"Davies-Bouldin Index: {davies_bouldin_LAB}")
+
+print(f"\nHSV Evaluation Metrics:")
+print(f"Silhouette Coefficient: {silhouette_avg_HSV}")
+print(f"Calinski-Harabasz Index: {calinski_harabasz_HSV}")
+print(f"Davies-Bouldin Index: {davies_bouldin_HSV}")
 
 # Display the original and segmented images
 plt.subplot(3, 2, 1)

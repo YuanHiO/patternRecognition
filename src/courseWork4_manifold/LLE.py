@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.manifold import Isomap, LocallyLinearEmbedding
 from sklearn.cluster import KMeans
 from skimage.transform import resize
-
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 # Load the image path
 image_path = '../../data/imgs/0618.png'
 image = cv2.imread(image_path)
@@ -71,6 +71,25 @@ kmeans_HSV = KMeans(n_clusters=n_clusters, random_state=42)
 labels_HSV = kmeans_HSV.fit_predict(image_reduced_lle_HSV)
 # Reshape the labels to the image shape
 segmented_image_HSV = labels_HSV.reshape(image_resized_HSV.shape[0], image_resized_HSV.shape[1])
+
+# Calculate evaluation metrics
+def calculate_metrics(data, labels):
+    silhouette = silhouette_score(data, labels)
+    calinski_harabasz = calinski_harabasz_score(data, labels)
+    davies_bouldin = davies_bouldin_score(data, labels)
+    return silhouette, calinski_harabasz, davies_bouldin
+
+# RGB
+silhouette_RGB, calinski_harabasz_RGB, davies_bouldin_RGB = calculate_metrics(image_reduced_lle_RGB, labels_RGB)
+print(f"RGB - Silhouette Score: {silhouette_RGB}, Calinski-Harabasz Index: {calinski_harabasz_RGB}, Davies-Bouldin Index: {davies_bouldin_RGB}")
+
+# LAB
+silhouette_LAB, calinski_harabasz_LAB, davies_bouldin_LAB = calculate_metrics(image_reduced_lle_LAB, labels_LAB)
+print(f"LAB - Silhouette Score: {silhouette_LAB}, Calinski-Harabasz Index: {calinski_harabasz_LAB}, Davies-Bouldin Index: {davies_bouldin_LAB}")
+
+# HSV
+silhouette_HSV, calinski_harabasz_HSV, davies_bouldin_HSV = calculate_metrics(image_reduced_lle_HSV, labels_HSV)
+print(f"HSV - Silhouette Score: {silhouette_HSV}, Calinski-Harabasz Index: {calinski_harabasz_HSV}, Davies-Bouldin Index: {davies_bouldin_HSV}")
 
 # Display the original and segmented images
 plt.figure(figsize=(10, 5))
